@@ -39,6 +39,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Maximum number of pages to scrape (default: 500).",
     )
     parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Scrape all reachable pages (ignores --max-pages limit).",
+    )
+    parser.add_argument(
         "--delay",
         type=float,
         default=0.25,
@@ -58,6 +63,9 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     args = parser.parse_args(argv)
+
+    if args.full:
+        args.max_pages = 1_000_000  # effectively no limit
 
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
