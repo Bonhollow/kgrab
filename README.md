@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="kgrab logo" width="500">
+  <img src="https://raw.githubusercontent.com/Bonhollow/kgrab/main/logo.png" alt="kgrab logo" width="500">
 </p>
 
 <p align="center">
