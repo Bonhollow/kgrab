@@ -5,9 +5,11 @@ from __future__ import annotations
 import argparse
 import logging
 import pathlib
+import os
 import sys
 
 from .scraper import scrape_docs
+from .cloudflare import scrape_docs_cloudflare
 from .agents_generator import generate_agents_md
 
 
@@ -61,6 +63,14 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Enable verbose / debug logging.",
     )
+    parser.add_argument(
+        "--cf-account",
+        help="Cloudflare Account ID (for SPA crawling via Browser Rendering). Can also use CF_ACCOUNT_ID env var.",
+    )
+    parser.add_argument(
+        "--cf-token",
+        help="Cloudflare API Token. Can also use CF_API_TOKEN env var.",
+    )
 
     args = parser.parse_args(argv)
 
@@ -72,12 +82,24 @@ def main(argv: list[str] | None = None) -> None:
         format="%(levelname)s %(message)s",
     )
 
-    logging.info("Starting scrape from %s …", args.url)
-    result = scrape_docs(
-        args.url,
-        max_pages=args.max_pages,
-        delay=args.delay,
-    )
+    cf_account = args.cf_account or os.environ.get("CF_ACCOUNT_ID")
+    cf_token = args.cf_token or os.environ.get("CF_API_TOKEN")
+
+    if cf_account and cf_token:
+        logging.info("Using Cloudflare Browser Rendering to crawl %s ...", args.url)
+        result = scrape_docs_cloudflare(
+            args.url,
+            account_id=cf_account,
+            api_token=cf_token,
+            max_pages=args.max_pages,
+        )
+    else:
+        logging.info("Starting local scrape from %s ...", args.url)
+        result = scrape_docs(
+            args.url,
+            max_pages=args.max_pages,
+            delay=args.delay,
+        )
 
     logging.info("Scraped %d page(s), %d error(s).", len(result.pages), len(result.errors))
 
