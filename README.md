@@ -43,7 +43,7 @@ doc-scrape https://docs.agno.com/introduction --full
 # Scrape an SPA (Single Page Application) using Cloudflare Browser Rendering
 export CF_ACCOUNT_ID="your_account_id"
 export CF_API_TOKEN="your_api_token"
-doc-scrape https://python.langchain.com/docs/introduction/ --compact
+doc-scrape https://python.langchain.com/docs/introduction/ --compact --cloudflare
 ```
 
 ### MCP server usage
@@ -79,6 +79,7 @@ The MCP server exposes two tools: `scrape_documentation` and `scrape_documentati
 | `--full` | off | Scrape all reachable pages (ignores `--max-pages`) |
 | `--delay` | 0.25 | Seconds between HTTP requests (local scraper only) |
 | `-c / --compact` | off | Compress output: truncate prose, cap code, remove thin pages |
+| `--cloudflare` | off | Explicitly enable Cloudflare Browser Rendering API |
 | `--cf-account` | `$CF_ACCOUNT_ID` | Cloudflare Account ID for SPA crawling |
 | `--cf-token` | `$CF_API_TOKEN` | Cloudflare API Token for SPA crawling |
 | `-v / --verbose` | off | Enable debug logging |
@@ -108,7 +109,7 @@ By default, kgrab uses standard HTTP requests to fetch pages. This is extremely 
 
 To solve this, kgrab seamlessly integrates with the **Cloudflare Browser Rendering Crawl API**. 
 
-If you provide a `--cf-account` and `--cf-token` (or set `CF_ACCOUNT_ID` and `CF_API_TOKEN` environment variables), kgrab will automatically:
+If you provide the `--cloudflare` flag (and have set `--cf-account`/`--cf-token` or the corresponding `CF_ACCOUNT_ID`/`CF_API_TOKEN` environment variables), kgrab will automatically:
 1. Dispatch an asynchronous headless browser crawl job to Cloudflare.
 2. Cloudflare will recursively evaluate JavaScript, follow links, and scrape content.
 3. kgrab polls the job and fetches the rendered Markdown once complete.

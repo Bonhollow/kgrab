@@ -31,6 +31,7 @@ async def scrape_documentation(
     package_name: str | None = None,
     output_path: str = "AGENTS.md",
     compact: bool = True,
+    use_cloudflare: bool = False,
     cf_account: str | None = None,
     cf_token: str | None = None,
 ) -> str:
@@ -42,6 +43,7 @@ async def scrape_documentation(
         package_name: Human-friendly package name. Auto-detected from the page title if omitted.
         output_path: File path where the AGENTS.md will be written (default ./AGENTS.md).
         compact: Compress output by truncating prose and code blocks (default True).
+        use_cloudflare: Explicitly use Cloudflare Browser Rendering API to crawl SPAs.
         cf_account: Cloudflare Account ID for SPA crawling. Defaults to CF_ACCOUNT_ID env var.
         cf_token: Cloudflare API Token for SPA crawling. Defaults to CF_API_TOKEN env var.
 
@@ -51,7 +53,9 @@ async def scrape_documentation(
     account = cf_account or os.environ.get("CF_ACCOUNT_ID")
     token = cf_token or os.environ.get("CF_API_TOKEN")
 
-    if account and token:
+    if use_cloudflare:
+        if not account or not token:
+            return "❌ Error: use_cloudflare is True, but CF_ACCOUNT_ID and/or CF_API_TOKEN are missing."
         result = scrape_docs_cloudflare(url, account_id=account, api_token=token, max_pages=max_pages)
     else:
         result = scrape_docs(url, max_pages=max_pages, delay=0.25)
@@ -75,6 +79,7 @@ async def scrape_documentation_to_text(
     max_pages: int = 500,
     package_name: str | None = None,
     compact: bool = True,
+    use_cloudflare: bool = False,
     cf_account: str | None = None,
     cf_token: str | None = None,
 ) -> str:
@@ -85,6 +90,7 @@ async def scrape_documentation_to_text(
         max_pages: Maximum number of pages to scrape (default 500).
         package_name: Human-friendly package name. Auto-detected if omitted.
         compact: Compress output by truncating prose and code blocks (default True).
+        use_cloudflare: Explicitly use Cloudflare Browser Rendering API to crawl SPAs.
         cf_account: Cloudflare Account ID for SPA crawling.
         cf_token: Cloudflare API Token for SPA crawling.
 
@@ -94,7 +100,9 @@ async def scrape_documentation_to_text(
     account = cf_account or os.environ.get("CF_ACCOUNT_ID")
     token = cf_token or os.environ.get("CF_API_TOKEN")
 
-    if account and token:
+    if use_cloudflare:
+        if not account or not token:
+            return "Error: use_cloudflare is True, but CF_ACCOUNT_ID and/or CF_API_TOKEN are missing."
         result = scrape_docs_cloudflare(url, account_id=account, api_token=token, max_pages=max_pages)
     else:
         result = scrape_docs(url, max_pages=max_pages, delay=0.25)

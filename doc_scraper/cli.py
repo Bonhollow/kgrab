@@ -71,6 +71,11 @@ def main(argv: list[str] | None = None) -> None:
         "--cf-token",
         help="Cloudflare API Token. Can also use CF_API_TOKEN env var.",
     )
+    parser.add_argument(
+        "--cloudflare",
+        action="store_true",
+        help="Use Cloudflare Browser Rendering API (requires CF_ACCOUNT_ID and CF_API_TOKEN).",
+    )
 
     args = parser.parse_args(argv)
 
@@ -85,7 +90,10 @@ def main(argv: list[str] | None = None) -> None:
     cf_account = args.cf_account or os.environ.get("CF_ACCOUNT_ID")
     cf_token = args.cf_token or os.environ.get("CF_API_TOKEN")
 
-    if cf_account and cf_token:
+    if args.cloudflare:
+        if not cf_account or not cf_token:
+            sys.exit("Error: --cloudflare requires both CF_ACCOUNT_ID and CF_API_TOKEN to be set.")
+            
         logging.info("Using Cloudflare Browser Rendering to crawl %s ...", args.url)
         result = scrape_docs_cloudflare(
             args.url,
